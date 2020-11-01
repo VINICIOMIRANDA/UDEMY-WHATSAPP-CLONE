@@ -362,11 +362,39 @@ class WhatsAppController {
 
                 emoji.classList.forEach(name => {
 
-                    img.classList.add(name)
+                    img.classList.add(name);
 
                 });
 
-                this.el.inputText.appendChild(img);
+              //  this.el.inputText.appendChild(img);
+
+                let cursor = window.getSelection();
+
+                if (!cursor.focusNode || !cursor.focusNode.id == 'input-text') { // Vai verificar se o curso está no input da caixa de mensagem.
+
+                    this.el.inputText.focus();
+                    cursor = window.getSelection();
+
+                }
+
+
+                let range = document.createRange();
+
+                range = cursor.getRangeAt(0);
+                range.deleteContents(); // Vai apagar o range de caracteres
+
+
+                let frag = document.createDocumentFragment();
+
+                frag.appendChild(img);
+
+                range.insertNode(frag); // Inserindo o emoji na posição escolhida na caixa de mensagem.
+
+                range.setStartAfter(img); //
+
+
+
+
                 this.el.inputText.dispatchEvent(new Event('keyup'));
             });
 
