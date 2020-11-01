@@ -1,8 +1,9 @@
-import {Format} from './../util/Format';
-import {CameraController} from './../controller/CameraController';
+import { Format } from './../util/Format';
+import { CameraController } from './../controller/CameraController';
+import { DocumentPreviewController } from './../controller/DocumentPreviewController';
 
 
-export  class WhatsAppController {
+export class WhatsAppController {
 
     constructor() {
 
@@ -245,7 +246,7 @@ export  class WhatsAppController {
                 this.closeAllMainPanel();
                 this.el.panelMessagesContainer.show();// Mostrando  a tela de mensagem e fechando  a tela de foto
                 this._camera.stop();
-                
+
             });
 
             this.el.btnTakePicture.on('click', e => {
@@ -261,7 +262,7 @@ export  class WhatsAppController {
 
             });
 
-            this.el.btnReshootPanelCamera.on('click', e=>{
+            this.el.btnReshootPanelCamera.on('click', e => {
 
                 this.el.pictureCamera.hide();
                 this.el.videoCamera.show(); // Esconder a camera 
@@ -273,16 +274,17 @@ export  class WhatsAppController {
 
             })
 
-            this.el.btnSendPicture.on('click', e=>{
+            this.el.btnSendPicture.on('click', e => {
 
-                    console.log(this.el.pictureCamera.src)   ; 
+                console.log(this.el.pictureCamera.src);
 
 
-                
+
             });
 
 
             this.el.btnAttachDocument.on('click', e => {
+
                 this.closeAllMainPanel();
                 this.el.panelDocumentPreview.addClass('open');
                 this.el.panelDocumentPreview.css({
@@ -290,7 +292,70 @@ export  class WhatsAppController {
 
                 });
 
+                this.el.inputDocument.click();
+
             });
+
+            this.el.inputDocument.on('change', e => {
+
+                if (this.el.inputDocument.files.length) {
+
+                    let file = this.el.inputDocument.files[0];
+
+                    this._documentPreviewController = new DocumentPreviewController(file);
+
+                    this._documentPreviewController.getPreviewData().then(result => {
+
+                        this.el.imgPanelDocumentPreview.src = result.src;
+
+                        this.el.infoPanelDocumentPreview.innerHTML = result.info;
+                        this.el.imagePanelDocumentPreview.show();
+                        this.el.filePanelDocumentPreview.hide();
+
+
+
+                    }).catch(err => {
+
+                        //   console.log('err', err);
+
+                        console.log(file.type)
+
+                        switch (file.type) {
+
+                            case 'application/vnd.ms-excel':
+                            case 'application/vnd.openxmlformatts-officedocument.spreadsheetml.sheet':
+                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-xls';
+
+                                break;
+
+                            case 'application/vnd.ms-powerpoint':
+                            case 'application/vnd.openxmlformatts-officedocument.presemtationml.presentation':
+                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-ppt';
+
+                                break;
+
+                            case 'application/msword':
+                            case 'application/vnd.openxmlformatts-officedocument.wordprocessingml.document':
+                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-doc';
+
+                                break;
+
+                            default:
+                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-generic';
+
+                                break;
+
+
+                        }
+
+                        this.el.filenamePanelDocumentPreview.innerHTML = file.name;
+                        this.el.imagePanelDocumentPreview.hide();
+                        this.el.filePanelDocumentPreview.show();
+
+                    });
+                }
+            })
+
 
             this.el.btnClosePanelDocumentPreview.on('click', e => {
                 this.closeAllMainPanel();
