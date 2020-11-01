@@ -232,20 +232,24 @@ class WhatsAppController {
 
                 });
 
-                this.el.btnClosePanelCamera.on('click', e => {
-
-                    this.closeAllMainPanel();
-                    this.el.panelMessagesContainer.show();// Mostrando  a tela de mensagem e fechando  a tela de foto
-
-                });
-
-                this.el.btnTakePicture.on('click', e => {
-
-                    console.log('take picture')
-
-                });
+                this._camera = new CameraController(this.el.videoCamera);
 
             });
+
+            this.el.btnClosePanelCamera.on('click', e => {
+
+                this.closeAllMainPanel();
+                this.el.panelMessagesContainer.show();// Mostrando  a tela de mensagem e fechando  a tela de foto
+
+            });
+
+            this.el.btnTakePicture.on('click', e => {
+
+                console.log('take picture')
+
+            });
+
+
 
             this.el.btnAttachDocument.on('click', e => {
                 this.closeAllMainPanel();
@@ -366,7 +370,7 @@ class WhatsAppController {
 
                 });
 
-              //  this.el.inputText.appendChild(img);
+                //  this.el.inputText.appendChild(img);
 
                 let cursor = window.getSelection();
 
