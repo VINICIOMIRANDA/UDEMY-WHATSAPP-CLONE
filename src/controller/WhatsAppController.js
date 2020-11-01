@@ -14,7 +14,6 @@ class WhatsAppController {
 
         this.el = {};
 
-        console.log('1');
         document.querySelectorAll('[id]').forEach(element => {
 
             this.el[Format.getCamelCase(element.id)] = element;
@@ -185,12 +184,54 @@ class WhatsAppController {
             let formData = new FormData(this.el.formPanelAddContact); //Colocando o ID do elmento no construtor do FormData.
 
 
+        });
 
+        this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item => {   // Classe contact-item
+
+            item.on('click', e => {
+
+
+                this.el.home.hide(); // Ocultando o id home
+                this.el.main.css({
+                    display: 'flex'
+
+
+                })
+
+            });
+
+            this.el.btnAttach.on('click', e => {  //Clicando no icone de anexo
+
+                e.stopPropagation(); // Executando um evento  apenas na camada selecionado , evitando que execute nas os elementos ancestrais.
+                this.el.menuAttach.addClass('open'); //Mostra o menu do anexo
+                document.addEventListener('click', this.closeMenuAttach.bind(this));
+                // .bind(this) é usado para vincular o escopo do this com outro escopo
+            });
+
+            this.el.btnAttachPhoto.on('click', e => {
+                console.log('photo')
+            });
+
+            this.el.btnAttachCamera.on('click', e => {
+                console.log('camera')
+            });
+
+            this.el.btnAttachDocument.on('click', e => {
+                console.log('documento')
+            });
+
+            this.el.btnAttachContact.on('click', e => {
+                console.log('contato')
+            });
 
         });
 
+    }
 
+    closeMenuAttach(e) {
 
+        document.removeEventListener('click', this.closeMenuAttach);  //removendo o evento 
+        this.el.menuAttach.removeClass('open'); // Esconde o menu anexar quando clicado em qualquer elemento na pagina
 
     }
 
