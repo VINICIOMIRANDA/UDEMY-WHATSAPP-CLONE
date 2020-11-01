@@ -83,7 +83,7 @@ class WhatsAppController {
 
         Element.prototype.toggleClass = function (name) {
 
-            this.classList.toogle(name);
+            this.classList.toggle(name);
             return this;
 
 
@@ -234,7 +234,7 @@ class WhatsAppController {
 
                 this.el.btnClosePanelCamera.on('click', e => {
 
-                    this.closeAllMainPanel();       
+                    this.closeAllMainPanel();
                     this.el.panelMessagesContainer.show();// Mostrando  a tela de mensagem e fechando  a tela de foto
 
                 });
@@ -257,13 +257,13 @@ class WhatsAppController {
 
             });
 
-            this.el.btnClosePanelDocumentPreview.on('click', e=>{
+            this.el.btnClosePanelDocumentPreview.on('click', e => {
                 this.closeAllMainPanel();
                 this.el.panelMessagesContainer.show();
 
             });
 
-            this.el.btnSendDocument.on('click', e=>{
+            this.el.btnSendDocument.on('click', e => {
 
                 console.log('Enviando o Documento');
 
@@ -271,10 +271,10 @@ class WhatsAppController {
 
             this.el.btnAttachContact.on('click', e => {
                 this.el.modalContacts.show();
-                
+
             });
 
-            this.el.btnCloseModalContacts.on('click', e=>{
+            this.el.btnCloseModalContacts.on('click', e => {
 
                 this.el.modalContacts.hide();
 
@@ -282,51 +282,101 @@ class WhatsAppController {
 
         });
 
-        this.el.btnSendMicrophone.on('click',e=>{
+        this.el.btnSendMicrophone.on('click', e => {
 
             this.el.recordMicrophone.show();
             this.el.btnSendMicrophone.hide();
             this.startRecordMicrophoneTime();
 
-                 });
-
-     
-        this.el.btnCancelMicrophone.on('click',e=>{
-           
-            this.closeRecordMicrophone();
-
         });
 
-        this.el.btnFinishMicrophone.on('click',e=>{
+
+        this.el.btnCancelMicrophone.on('click', e => {
 
             this.closeRecordMicrophone();
 
         });
 
-        this.el.recordMicrophoneTimer.on('click',e=>{
+        this.el.btnFinishMicrophone.on('click', e => {
 
-            this.el.recordMicrophone.show();
-            this.el.btnSendMicrophone.hide();
+            this.closeRecordMicrophone();
+
+        });
+
+
+        this.el.inputText.on('keypress', e => {
+
+            if (e.key === 'Enter' && !e.ctrlKey) {
+
+                e.preventDefault();
+                this.el.btnSend.click()
+            }
+
+        })
+
+        this.el.inputText.on('keyup', e => {
+
+            if (this.el.inputText.innerHTML.length) {
+
+                this.el.inputPlaceholder.hide();
+                this.el.btnSendMicrophone.hide();
+                this.el.btnSend.show();
+
+                // Escondendo: Place holder e Microfone
+                // Mostrando: Botão de enviar.
+
+            } else {
+
+                this.el.inputPlaceholder.show();
+                this.el.btnSendMicrophone.show();
+                this.el.btnSend.hide();
+
+                // Mostrando: Place holder e Microfone
+                // Escondendo: Botão de enviar.
+            }
+
+        });
+
+        this.el.btnSend.on('click', e => { //Botão Enviar (Caixa de mensagem)
+
+            console.log(this.el.inputText.innerHTML);
+        });
+
+        this.el.btnEmojis.on('click', e => {
+
+            this.el.panelEmojis.toggleClass('open'); // Altena ao clicar no icone do emojis.
+
+        });
+
+        this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji => {
+
+            emoji.on('click', e => {
+
+                console.log(emoji.dataset.unicode);
+
+            });
+
         });
 
 
     }
 
-    startRecordMicrophoneTime(){
+    startRecordMicrophoneTime() {
 
         let start = Date.now();
 
-        this._recordMicrophoneInterval = setInterval(()=>{
-            
+        this._recordMicrophoneInterval = setInterval(() => {
+
             this.el.recordMicrophoneTimer.innerHTML = Format.toTime(Date.now() - start); //Usando a classe toTime do Format.js
 
         }, 100);
 
 
+
     }
 
 
-    closeRecordMicrophone(){
+    closeRecordMicrophone() {
 
         this.el.recordMicrophone.hide();
         this.el.btnSendMicrophone.show();
