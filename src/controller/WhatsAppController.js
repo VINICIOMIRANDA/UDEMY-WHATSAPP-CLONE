@@ -1,4 +1,8 @@
-class WhatsAppController {
+import {Format} from './../util/Format';
+import {CameraController} from './../controller/CameraController';
+
+
+export  class WhatsAppController {
 
     constructor() {
 
@@ -240,15 +244,42 @@ class WhatsAppController {
 
                 this.closeAllMainPanel();
                 this.el.panelMessagesContainer.show();// Mostrando  a tela de mensagem e fechando  a tela de foto
-
+                this._camera.stop();
+                
             });
 
             this.el.btnTakePicture.on('click', e => {
 
-                console.log('take picture')
+                let dataURL = this._camera.takePicture();
+
+                this.el.pictureCamera.src = dataURL;
+                this.el.pictureCamera.show();
+                this.el.videoCamera.hide(); // Esconder a camera 
+                this.el.btnReshootPanelCamera.show(); // Tirar novamente
+                this.el.containerTakePicture.hide(); //Esconder o botão da camera.
+                this.el.containerSendPicture.show();
 
             });
 
+            this.el.btnReshootPanelCamera.on('click', e=>{
+
+                this.el.pictureCamera.hide();
+                this.el.videoCamera.show(); // Esconder a camera 
+                this.el.btnReshootPanelCamera.hide(); // Tirar novamente
+                this.el.containerTakePicture.show(); //Esconder o botão da camera.
+                this.el.containerSendPicture.hide();
+
+
+
+            })
+
+            this.el.btnSendPicture.on('click', e=>{
+
+                    console.log(this.el.pictureCamera.src)   ; 
+
+
+                
+            });
 
 
             this.el.btnAttachDocument.on('click', e => {
