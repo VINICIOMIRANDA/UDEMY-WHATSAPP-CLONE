@@ -10,10 +10,33 @@ export class WhatsAppController {
 
         console.log('WhatsAppController Ok');
 
+        this._firebase = new Firebase(); // Corrigindo Uncaught TypeError: Cannot read property 'initAuth' of undefined, alterado a ordem do initAuth após o firebase.
+        this.initAuth();
         this.elementsPrototype();
         this.loadElements();
         this.initEvents(); // Metodo vai iniciar todos os eventos
-        this._firebase = new Firebase();
+  
+
+
+    }
+
+    initAuth(){
+
+        this._firebase.initAuth()
+        .then(response=> {
+
+            this._user = response.user;
+            this.el.appContent.css({
+
+                display: 'flex'
+
+            });
+            console.log('response', response);
+
+        }).catch(err =>{
+
+            console.error(err);
+        });
 
     }
 

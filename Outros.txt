@@ -24,3 +24,5 @@ Instalando o fireabase
 //npm install firebase --save
 
 npm install firebase@4.9.0 --save
+
+AULA Uncaught TypeError: Cannot read property 'initAuth' of undefined

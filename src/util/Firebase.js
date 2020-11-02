@@ -1,5 +1,5 @@
 const firebase = require('firebase');
-require ('firebase/firestore');
+require('firebase/firestore');
 
 export class Firebase {
 
@@ -23,18 +23,18 @@ export class Firebase {
 
     init() {
 
-        if (!this.initializeApp) {
+        if (!this._initializeApp) {
 
             firebase.initializeApp(this._config);
 
 
             firebase.firestore().settings({
 
-               // timestampsInSnapshots: true
+                // timestampsInSnapshots: true
 
             });
 
-            this.initializeApp = true;
+            this._initializeApp = true;
 
 
         }
@@ -42,14 +42,42 @@ export class Firebase {
 
 
     }
-        static db() {
+    static db() {
 
-            return firebase.firestore();
-        }
+        return firebase.firestore();
+    }
 
-        static hd(){
+    static hd() {
 
-            return firebase.storage();
-        }
+        return firebase.storage();
+    }
+
+    initAuth() {
+
+        return new Promise((s, f) => {
+
+            let provider = new firebase.auth.GoogleAuthProvider();
+
+            firebase.auth().signInWithPopup(provider) // Abrirá uma janela para informar qual a conta do google faremos o acesso
+                .then((result) => {
+
+                    let token = result.credential.accessToken;
+                    let user = result.user;
+
+                    console.log("user", user);
+                    console.log("token", token);
+
+                    s({
+                        user,
+                        token
+                    });
+
+                }).catch(err => {
+                    f(err);
+                });
+
+        });
+
+    }
 
 }
