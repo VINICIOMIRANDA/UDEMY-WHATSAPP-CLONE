@@ -16,40 +16,73 @@ export class WhatsAppController {
         this.elementsPrototype();
         this.loadElements();
         this.initEvents(); // Metodo vai iniciar todos os eventos
-  
+
 
 
     }
 
-    initAuth(){
+    initAuth() {
 
-        this._firebase.initAuth().then(response=> {
+        this._firebase.initAuth().then(response => {
 
 
-            this._user = new User();
+            this._user = new User(response.user.email);
 
-         //   this._user = response.user;
+            this._user.on('datachange', data => {
 
-           let userRef = User.findByEmail(response.user.email);
+                document.querySelector('title').innerHTML = data.name + ' - WathsApp Clone';
 
-            userRef.set({
-                name: response.user.displayName,
-                email: response.user.email,
-                photo: response.user.photoURL
 
-            }).then(()=>{
+                this.el.inputNamePanelEditProfile.innerHTML = data.name; // Por ser uma div, utilizamos o innerHTML
+
+                if (data.photo) {
+
+                    let photo = this.el.imgPanelEditProfile;
+                    photo.src = data.photo;
+                    photo.show();
+
+                    this.el.imgDefaultPanelEditProfile.hide();
+                    let photo2 = this.el.myPhoto.querySelector('img');
+                    photo2.src = data.photo;
+                    photo2.show();
+
+
+
+                }
+
+            });
+
+            this._user.name = response.user.displayName;
+            this._user.email = response.user.email;
+            this._user.photo = response.user.photoURL;
+
+            this._user.save().then(() => {
 
                 this.el.appContent.css({
 
                     display: 'flex'
-    
+
                 });
 
-            });
+            })
+            
+        .catch(err => {
 
-         //   console.log('response', response);
+                console.error(err);
 
-        }).catch(err =>{
+            })
+
+
+
+
+            //   this._user = response.user;
+
+            let userRef = User.findByEmail(response.user.email);
+
+
+
+
+        }).catch(err => {
 
             console.error(err);
         });
@@ -458,7 +491,7 @@ export class WhatsAppController {
 
             });
 
-            this._microphoneController.on('recordtimer', timer =>{
+            this._microphoneController.on('recordtimer', timer => {
 
                 this.el.recordMicrophoneTimer.innerHTML = Format.toTime(timer); //Usando a classe toTime do Format.js
 
