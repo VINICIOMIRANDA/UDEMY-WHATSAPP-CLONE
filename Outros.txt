@@ -19,10 +19,10 @@ Diagrama da comunicação com o firebase.
 
 Arquivo ArquiteturaWhatsAppCloneFirebase.png
 
-Instalando o fireabase
+Instalando o firebase
 
 //npm install firebase --save
 
 npm install firebase@4.9.0 --save
 
-AULA Uncaught TypeError: Cannot read property 'initAuth' of undefined
+
