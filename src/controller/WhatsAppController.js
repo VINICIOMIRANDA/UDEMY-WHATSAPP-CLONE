@@ -65,17 +65,14 @@ export class WhatsAppController {
                 });
 
             })
-            
-        .catch(err => {
 
-                console.error(err);
+                .catch(err => {
 
-            })
+                    console.error(err);
 
+                })
 
-
-
-            //   this._user = response.user;
+           //   this._user = response.user;
 
             let userRef = User.findByEmail(response.user.email);
 
@@ -251,7 +248,18 @@ export class WhatsAppController {
 
         this.el.btnSavePanelEditProfile.on('click', e => {
 
+            this.el.btnSavePanelEditProfile.disabled = true;
+
+            this._user.name = this.el.inputNamePanelEditProfile.innerHTML;
+
+
             console.log(this.el.inputNamePanelEditProfile.innerHTML);
+
+            this._user.save().then(() => {
+
+                this.el.btnSavePanelEditProfile.disabled = false;
+
+            });
 
 
         });
@@ -262,6 +270,31 @@ export class WhatsAppController {
 
             let formData = new FormData(this.el.formPanelAddContact); //Colocando o ID do elmento no construtor do FormData.
 
+
+                let contact = new User(formData.get('email'));
+
+                contact.on('datachange', data=>{
+
+                    if (data.name) {
+
+                        
+                        this._user.addContact(contact).then(()=>{
+
+                            this.el.btnClosePanelAddContact.click();
+                            console.info('Contato foi adicionado');
+
+
+                        }).catch();
+
+                    } else {
+
+                        console.error('Usuário não foi encontrado.')
+                    }
+
+
+                });
+
+                this._user.addContact();
 
         });
 
