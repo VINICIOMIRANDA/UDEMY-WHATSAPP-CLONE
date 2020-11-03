@@ -94,21 +94,61 @@ export class User extends Model {
         return Firebase.db().collection('/users'); // Coleção 
     }
 
+    static getContactsRef(id) {
+
+        return User.getRef()
+            .doc(id)
+            .collection('contacts');
+
+    }
+
     static findByEmail(email) {
 
         return User.getRef().doc(email);
     }
 
-     addContact(contact){
 
-        return User.getRef()
-        .doc(this.email)
-        .collection('contacts')
-        .doc(btoa(contact.email))
-        .set(contact.toJSON());
 
- 
+    addContact(contact) {
+
+        return User.getContactsRef(this.email)
+            .doc(btoa(contact.email))
+            .set(contact.toJSON());
+
+
         //btoa - Converte o string para a base 64 e atob retorna da base 64 para ASCII
+
+    }
+
+    getContacts() {
+
+        return new Promise((s, f) => {
+
+             User.getContactsRef(this.email).onSnapshot(docs => {
+
+                let contacts = [];
+
+                docs.forEach(doc => {
+
+                    let data = doc.data();
+
+                    data.id = doc.id;
+
+                    contacts.push(data)
+
+                });
+
+                this.trigger('contactschange', docs);
+
+                s(contacts);
+
+
+            });
+
+
+
+        });
+
 
     }
 
