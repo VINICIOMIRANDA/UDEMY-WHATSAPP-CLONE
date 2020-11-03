@@ -106,7 +106,7 @@ export class WhatsAppController {
                 let div = document.createElement('div');
 
                 div.className = 'contact-item';
-        
+
                 div.innerHTML = `
                         <div class="dIyEr">
                             <div class="_1WliW" style="height: 49px; width: 49px;">
@@ -159,16 +159,36 @@ export class WhatsAppController {
                             </div>
                         </div>
            `;
-        
-                if (contact.photo)  {
 
-                    let img =  div.querySelector('.photo');
+                if (contact.photo) {
+
+                    let img = div.querySelector('.photo');
                     img.src = contact.photo;
-                    img.show(); 
+                    img.show();
 
                 }
 
-              
+                div.on('click', e => {
+
+                    this.el.activeName.innerHTML = contact.name;
+                    this.el.activeStatus.innerHTML = contact.status;
+
+                    if (contact.photo) {
+
+                        let img = this.el.activePhoto;
+                        img.src = contact.photo;
+                        img.show();
+                    }
+
+                    this.el.home.hide();
+                    this.el.main.css({
+
+                        display: 'flex'
+
+                    })
+
+                })
+
                 this.el.contactsMessagesList.appendChild(div);
 
 
