@@ -1,3 +1,4 @@
+import { Firebase } from "../src/util/Firebase";
 import { Model } from "./Model"
 
 export class Message extends Model {
@@ -57,7 +58,9 @@ export class Message extends Model {
 
     }
 
-    get ViewElement(me = true) { //me usado para definir se a mensagem está sendo enviado  ou recebida
+
+     
+        getViewElement(me = true) { //me usado para definir se a mensagem está sendo enviado  ou recebida
 
         let div = document.createElement('div');
 
@@ -91,11 +94,11 @@ export class Message extends Model {
                                         </div>
                                         <div class="_1lC8v">
                                             <div dir="ltr" class="_3gkvk selectable-text invisible-space copyable-text">
-                                                Nome do Contato Anexado</div>
+                                            ${this.content.name}</div>
                                         </div>
                                         <div class="_3a5-b">
                                             <div class="_1DZAH" role="button">
-                                                <span class="message-time">17:01</span>
+                                                <span class="message-time">${Format.timeStampToTime(this.timeStamp)}</span>
                                                 <div class="message-status">
                                                     <span data-icon="msg-dblcheck">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 15" width="16" height="15">
@@ -111,9 +114,9 @@ export class Message extends Model {
                                         <div class="btn-message-send" role="button">Enviar mensagem
                                         </div>
                                     </div>
-                                </div>
-
+                                 </div>
                             </div>
+                        </div>
              `;
 
                 break;
@@ -341,11 +344,11 @@ export class Message extends Model {
                                 <span class="tail-container highlight"></span>
                                 <div class="Tkt2p">
                                     <div class="_3zb-j ZhF0n">
-                                        <span dir="ltr" class="selectable-text invisible-space message-text">Oi!</span>
+                                        <span dir="ltr" class="selectable-text invisible-space message-text">${this.content}</span>
                                     </div>
                                     <div class="_2f-RV">
                                         <div class="_1DZAH">
-                                            <span class="msg-time">11:33</span>
+                                            <span class="msg-time">${Format.timeStampToTime(this.timeStamp)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -368,6 +371,26 @@ export class Message extends Model {
 
     }
 
+    static send(chatId, from, type, content) {
+
+        return Message.getRef(chatId).add({
+            content,
+            timeStamp: new Date(),
+            status: 'wait',
+            type,
+            from
+        });
+
+    }
+
+    static getRef(chatId) {
+
+        return Firebase.db()
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages');
+
+    }
 
 
 
