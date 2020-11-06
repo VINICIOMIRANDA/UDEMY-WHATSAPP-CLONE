@@ -1,4 +1,4 @@
-import { Firebase } from './../src/util/Firebase';
+import { Firebase } from '../util/Firebase';
 import { Model } from './Model';
 
 
