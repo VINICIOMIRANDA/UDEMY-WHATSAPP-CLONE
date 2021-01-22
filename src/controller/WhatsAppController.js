@@ -231,16 +231,26 @@ export class WhatsAppController {
   
             let data = doc.data();
             data.id = doc.id;
+
+            let message = new Message();
+
+            message.fromJSON(data);
+
+            let me = (data.from === this._user.email);
   
             if (!this.el.panelMessagesContainer.querySelector('#_' + data.id)) { // O nome de seletores  ID não pode começar com o número por isso #_
+       
+              
 
-           
-  
-              let message = new Message();
-  
-              message.fromJSON(data);
-  
-              let me = (data.from === this._user.email);
+              if (!me) {
+
+                doc.ref.set({
+                  status: 'read'
+                },{
+                  merge:true
+                })
+
+              }
   
               let view = message.getViewElement(me);
   
@@ -248,6 +258,11 @@ export class WhatsAppController {
 
             
   
+            } else if(me) {
+
+                let msgEl = this.el.panelMessagesContainer.querySelector('#_' + data.id);
+                msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML;
+                console.log(msgEl.querySelectorAll('.message-time'))
             }
   
          
