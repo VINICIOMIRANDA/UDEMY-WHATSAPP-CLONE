@@ -4,112 +4,112 @@ import { MicrophoneController } from './../controller/MicrophoneController';
 import { DocumentPreviewController } from './../controller/DocumentPreviewController';
 import { Firebase } from './../util/Firebase';
 import { User } from '../model/User';
-import { Chat} from '../model/Chat';
+import { Chat } from '../model/Chat';
 import { Message } from '../model/Message';
 
 export class WhatsAppController {
 
-    constructor() {
+  constructor() {
 
-        console.log('WhatsAppController Ok');
+    console.log('WhatsAppController Ok');
 
-        this._firebase = new Firebase(); // Corrigindo Uncaught TypeError: Cannot read property 'initAuth' of undefined, alterado a ordem do initAuth após o firebase.
-        this.initAuth();
-        this.elementsPrototype();
-        this.loadElements();
-        this.initEvents(); // Metodo vai iniciar todos os eventos
-
-
-
-    }
-
-    initAuth() {
-
-        this._firebase.initAuth().then(response => {
-
-
-            this._user = new User(response.user.email);
-
-            this._user.on('datachange', data => {
-
-                document.querySelector('title').innerHTML = data.name + ' - WathsApp Clone';
-
-
-                this.el.inputNamePanelEditProfile.innerHTML = data.name; // Por ser uma div, utilizamos o innerHTML
-
-                if (data.photo) {
-
-                    let photo = this.el.imgPanelEditProfile;
-                    photo.src = data.photo;
-                    photo.show();
-
-                    this.el.imgDefaultPanelEditProfile.hide();
-                    let photo2 = this.el.myPhoto.querySelector('img');
-                    photo2.src = data.photo;
-                    photo2.show();
+    this._firebase = new Firebase(); // Corrigindo Uncaught TypeError: Cannot read property 'initAuth' of undefined, alterado a ordem do initAuth após o firebase.
+    this.initAuth();
+    this.elementsPrototype();
+    this.loadElements();
+    this.initEvents(); // Metodo vai iniciar todos os eventos
 
 
 
-                }
+  }
 
-                this.initContacts();
+  initAuth() {
+
+    this._firebase.initAuth().then(response => {
+
+
+      this._user = new User(response.user.email);
+
+      this._user.on('datachange', data => {
+
+        document.querySelector('title').innerHTML = data.name + ' - WathsApp Clone';
+
+
+        this.el.inputNamePanelEditProfile.innerHTML = data.name; // Por ser uma div, utilizamos o innerHTML
+
+        if (data.photo) {
+
+          let photo = this.el.imgPanelEditProfile;
+          photo.src = data.photo;
+          photo.show();
+
+          this.el.imgDefaultPanelEditProfile.hide();
+          let photo2 = this.el.myPhoto.querySelector('img');
+          photo2.src = data.photo;
+          photo2.show();
 
 
 
+        }
 
-
-            });
-
-            this._user.name = response.user.displayName;
-            this._user.email = response.user.email;
-            this._user.photo = response.user.photoURL;
-
-            this._user.save().then(() => {
-
-                this.el.appContent.css({
-
-                    display: 'flex'
-
-                });
-
-            })
-
-                .catch(err => {
-
-                    console.error(err);
-
-                })
-
-            //   this._user = response.user;
-
-            let userRef = User.findByEmail(response.user.email);
+        this.initContacts();
 
 
 
 
-        }).catch(err => {
 
-            console.error(err);
+      });
+
+      this._user.name = response.user.displayName;
+      this._user.email = response.user.email;
+      this._user.photo = response.user.photoURL;
+
+      this._user.save().then(() => {
+
+        this.el.appContent.css({
+
+          display: 'flex'
+
         });
 
-    }
+      })
 
-    initContacts() {
+        .catch(err => {
+
+          console.error(err);
+
+        })
+
+      //   this._user = response.user;
+
+      let userRef = User.findByEmail(response.user.email);
 
 
-        this._user.on('contactschange', docs => {
 
-            this.el.contactsMessagesList.innerHTML = '';
 
-            docs.forEach(doc => {
+    }).catch(err => {
 
-                let contact = doc.data();
+      console.error(err);
+    });
 
-                let div = document.createElement('div');
+  }
 
-                div.className = 'contact-item';
+  initContacts() {
 
-                div.innerHTML = `
+
+    this._user.on('contactschange', docs => {
+
+      this.el.contactsMessagesList.innerHTML = '';
+
+      docs.forEach(doc => {
+
+        let contact = doc.data();
+
+        let div = document.createElement('div');
+
+        div.className = 'contact-item';
+
+        div.innerHTML = `
                         <div class="dIyEr">
                             <div class="_1WliW" style="height: 49px; width: 49px;">
                                 <img src="#" class="Qgzj8 gqwaM photo" style="display:none;">
@@ -162,755 +162,754 @@ export class WhatsAppController {
                         </div>
            `;
 
-                if (contact.photo) {
-
-                    let img = div.querySelector('.photo');
-                    img.src = contact.photo;
-                    img.show();
-
-                }
-
-                div.on('click', e => {
-
-                    console.log('chatID', contact.chatId);
-
-                    this.setActiveChat(contact);
-
-                });
-
-                this.el.contactsMessagesList.appendChild(div);
-
-
-            })
-
-        })
-        this._user.getContacts()
-
-    }
-
-
-    setActiveChat(contact){
-
-        if (this._contactActive) {// Verificando se contact existir, jogar vazio  
-
-            Message.getRef(this._contactActive.chatId).onSnapshot(()=>{});
-
-        }
-        this._contactActive = contact;
-
-        this.el.activeName.innerHTML = contact.name;
-        this.el.activeStatus.innerHTML = contact.status;
-
         if (contact.photo) {
 
-            let img = this.el.activePhoto;
-            img.src = contact.photo;
-            img.show();
+          let img = div.querySelector('.photo');
+          img.src = contact.photo;
+          img.show();
+
         }
 
-        this.el.home.hide();
-        this.el.main.css({
+        div.on('click', e => {
 
-            display: 'flex'
+          console.log('chatID', contact.chatId);
 
-        });
-
-        this.el.panelMessagesContainer.innerHTML = '';
-
-
-        Message.getRef(this._contactActive.chatId).orderBy('timeStamp')
-        .onSnapshot(docs => {
-  
-
-
-          let scrollTop = this.el.panelMessagesContainer.scrollTop;
-          let scrollTopMax = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight);
-          let autoScroll = (scrollTop >= scrollTopMax );
-  
-          docs.forEach(doc => {
-  
-            let data = doc.data();
-            data.id = doc.id;
-
-            let message = new Message();
-
-            message.fromJSON(data);
-
-            let me = (data.from === this._user.email);
-  
-            if (!this.el.panelMessagesContainer.querySelector('#_' + data.id)) { // O nome de seletores  ID não pode começar com o número por isso #_
-       
-              
-
-              if (!me) {
-
-                doc.ref.set({
-                  status: 'read'
-                },{
-                  merge:true
-                })
-
-              }
-  
-              let view = message.getViewElement(me);
-  
-              this.el.panelMessagesContainer.appendChild(view);
-
-            
-  
-            } else if(me) {
-
-                let msgEl = this.el.panelMessagesContainer.querySelector('#_' + data.id);
-                msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML;
-                console.log(msgEl.querySelectorAll('.message-time'))
-            }
-  
-         
-            });
-
-            if (autoScroll) {
-
-                this.el.panelMessagesContainer.scrollTop = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight);
-
-              } else {
-
-                this.el.panelMessagesContainer.scrollTop = scrollTop;
-              }
+          this.setActiveChat(contact);
 
         });
 
+        this.el.contactsMessagesList.appendChild(div);
 
-        
+
+      })
+
+    })
+    this._user.getContacts()
+
+  }
 
 
+  setActiveChat(contact) {
+
+    if (this._contactActive) {// Verificando se contact existir, jogar vazio  
+
+      Message.getRef(this._contactActive.chatId).onSnapshot(() => { });
 
     }
+    this._contactActive = contact;
 
-    loadElements() {
+    this.el.activeName.innerHTML = contact.name;
+    this.el.activeStatus.innerHTML = contact.status;
 
-        this.el = {};
+    if (contact.photo) {
 
-        document.querySelectorAll('[id]').forEach(element => {
-
-            this.el[Format.getCamelCase(element.id)] = element;
-
-        });
-
+      let img = this.el.activePhoto;
+      img.src = contact.photo;
+      img.show();
     }
 
-    elementsPrototype() {
+    this.el.home.hide();
+    this.el.main.css({
 
-        //Tratando o escopo na função;
+      display: 'flex'
 
-        Element.prototype.hide = function () {
+    });
 
-            this.style.display = 'none';
-            return this;
-        }
+    this.el.panelMessagesContainer.innerHTML = '';
 
-        Element.prototype.show = function () {
 
-            this.style.display = 'block';
-            return this; // |Retornar o app para que o proximo metodo execute no elemento 
+    Message.getRef(this._contactActive.chatId).orderBy('timeStamp')
+      .onSnapshot(docs => {
 
-        }
 
-        Element.prototype.toggle = function () {
 
-            this.style.display = (this.style.display === 'none') ? 'block' : 'none';
-            return this;
-        }
+        let scrollTop = this.el.panelMessagesContainer.scrollTop;
+        let scrollTopMax = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight);
+        let autoScroll = (scrollTop >= scrollTopMax);
 
-        Element.prototype.on = function (events, fn) {
+        docs.forEach(doc => {
 
-            events.split(' ').forEach(event => {
+          let data = doc.data();
+          data.id = doc.id;
 
-                this.addEventListener(event, fn);
+          let message = new Message();
 
-            });
-            return this;
+          message.fromJSON(data);
 
-        }
+          let me = (data.from === this._user.email);
 
-        Element.prototype.css = function (styles) {
+          if (!this.el.panelMessagesContainer.querySelector('#_' + data.id)) { // O nome de seletores  ID não pode começar com o número por isso #_
 
-            for (let name in styles) {
 
-                this.style[name] = styles[name];
+
+            if (!me) {
+
+              doc.ref.set({
+                status: 'read'
+              }, {
+                merge: true
+              })
 
             }
-            return this;
 
-        }
+            let view = message.getViewElement(me);
 
-        Element.prototype.addClass = function (name) {
-
-            this.classList.add(name);
-            return this;
-
-        }
-
-        Element.prototype.removeClass = function (name) {
-
-            this.classList.remove(name);
-            return this;
-
-        }
-
-        Element.prototype.toggleClass = function (name) {
-
-            this.classList.toggle(name);
-            return this;
+            this.el.panelMessagesContainer.appendChild(view);
 
 
-        }
 
-        Element.prototype.hasClass = function (name) {
+          } else if (me) {
 
-            return this.classList.contains(name); // Contains "Se tem ou não"
-
-        }
-
-        HTMLFormElement.prototype.getForm = function () { //Aula 116
-
-            return new FormData(this);
-
-        }
-
-        HTMLFormElement.prototype.toJSON = function () { //Aula 116 
-
-            let json = {};
-
-            this.getForm().forEach((value, key) => {
-
-                json[key] = value
-
-            });
-
-
-            return json; // Gerar o formulario preenchido no formato JSON
-
-        }
-
-
-    }
-
-    initEvents() {
-
-        this.el.inputSearchContacts.on('keyup', e=>{
-
-          if   (this.el.inputSearchContacts.value.length > 0) {
-            this.el.inputSearchContactsPlaceholder.hide();
-
-          } else {
-
-            this.el.inputSearchContactsPlaceholder.show();
-
+            let msgEl = this.el.panelMessagesContainer.querySelector('#_' + data.id);
+            msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML;
+            console.log(msgEl.querySelectorAll('.message-time'))
           }
 
-          this._user.getContacts(this.el.inputSearchContacts.value); 
-          
-        });
-
-        this.el.myPhoto.on('click', e => {
-
-            this.closeAllLeftPanel(); //Fechando o panel
-            this.el.panelEditProfile.show();
-            setTimeout(() => {
-                this.el.panelEditProfile.addClass('open');
-            }, 300);
 
         });
 
-        this.el.btnNewContact.on('click', e => {
+        if (autoScroll) {
 
-            this.closeAllLeftPanel();
-            this.el.panelAddContact.show();
-            setTimeout(() => {
-                this.el.panelAddContact.addClass('open');
-            }, 300);
+          this.el.panelMessagesContainer.scrollTop = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight);
 
-        });
+        } else {
 
-        this.el.btnClosePanelEditProfile.on('click', e => {
+          this.el.panelMessagesContainer.scrollTop = scrollTop;
+        }
 
-            this.el.panelEditProfile.removeClass('open');
+      });
 
-        });
 
-        this.el.btnClosePanelAddContact.on('click', e => {
 
-            this.el.panelAddContact.removeClass('open');
 
 
-        });
 
-        this.el.photoContainerEditProfile.on('click', e => {
+  }
 
-            this.el.inputProfilePhoto.click();
+  loadElements() {
 
-        });
+    this.el = {};
 
-        this.el.inputNamePanelEditProfile.on('keypress', e => { // keypress 
+    document.querySelectorAll('[id]').forEach(element => {
 
-            if (e.key === 'Enter') {
+      this.el[Format.getCamelCase(element.id)] = element;
 
-                e.preventDefault(); //Não atualizar
-                this.el.btnSavePanelEditProfile.click();
-            }
+    });
 
-        });
+  }
 
-        this.el.btnSavePanelEditProfile.on('click', e => {
+  elementsPrototype() {
 
-            this.el.btnSavePanelEditProfile.disabled = true;
+    //Tratando o escopo na função;
 
-            this._user.name = this.el.inputNamePanelEditProfile.innerHTML;
+    Element.prototype.hide = function () {
 
+      this.style.display = 'none';
+      return this;
+    }
 
-            console.log(this.el.inputNamePanelEditProfile.innerHTML);
+    Element.prototype.show = function () {
 
-            this._user.save().then(() => {
+      this.style.display = 'block';
+      return this; // |Retornar o app para que o proximo metodo execute no elemento 
 
-                this.el.btnSavePanelEditProfile.disabled = false;
+    }
 
-            });
+    Element.prototype.toggle = function () {
 
+      this.style.display = (this.style.display === 'none') ? 'block' : 'none';
+      return this;
+    }
 
-        });
+    Element.prototype.on = function (events, fn) {
 
-        this.el.formPanelAddContact.on('submit', e => {
+      events.split(' ').forEach(event => {
 
-            e.preventDefault(); //Não atualizar
+        this.addEventListener(event, fn);
 
-            let formData = new FormData(this.el.formPanelAddContact); //Colocando o ID do elmento no construtor do FormData.
+      });
+      return this;
 
+    }
 
-            let contact = new User(formData.get('email'));
+    Element.prototype.css = function (styles) {
 
-            contact.on('datachange', data => {
+      for (let name in styles) {
 
-                if (data.name) {
+        this.style[name] = styles[name];
 
-                    Chat.createIfNotExists(this._user.email, contact.email).then(chat => {
+      }
+      return this;
 
-                        contact.chatId = chat.id;
+    }
 
-                        this._user.chatId = chat.id;
+    Element.prototype.addClass = function (name) {
 
-                        contact.addContact(this._user);
+      this.classList.add(name);
+      return this;
 
-                        this._user.addContact(contact).then(() => {
+    }
 
-                            this.el.btnClosePanelAddContact.click();
-                            console.info('Contato foi adicionado');
+    Element.prototype.removeClass = function (name) {
 
+      this.classList.remove(name);
+      return this;
 
-                        });
+    }
 
-                    });
+    Element.prototype.toggleClass = function (name) {
 
-                } else {
-
-                    console.error('Usuário não foi encontrado.')
-                }
-
-
-            });
-
-
-        });
-
-        this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item => {   // Classe contact-item
-
-            item.on('click', e => {
-
-
-                this.el.home.hide(); // Ocultando o id home
-                this.el.main.css({
-                    display: 'flex'
-
-
-                });
-
-            });
-
-            this.el.btnAttach.on('click', e => {  //Clicando no icone de anexo
-
-                e.stopPropagation(); // Executando um evento  apenas na camada selecionado , evitando que execute nas os elementos ancestrais.
-                this.el.menuAttach.addClass('open'); //Mostra o menu do anexo
-                document.addEventListener('click', this.closeMenuAttach.bind(this));
-                // .bind(this) é usado para vincular o escopo do this com outro escopo
-            });
-
-            this.el.btnAttachPhoto.on('click', e => {
-                this.el.inputPhoto.click();
-            });
-
-            this.el.inputPhoto.on('change', e => {
-
-                console.log(this.el.inputPhoto.files); // files é um coleção
-
-                [...this.el.inputPhoto].forEach(file => {  // transformando a coleção em Array para usar o forEach
-
-                    console.log(file);
-                });
-
-            });
-
-            this.el.btnAttachCamera.on('click', e => {
-
-                this.closeAllMainPanel();                 // Escondendo a tela de mensagem para mostrar a tela de foto
-                this.el.panelCamera.addClass('open');
-                this.el.panelCamera.css({
-                    'height': 'calc(100% - 120px)'
-
-                });
-
-                this._camera = new CameraController(this.el.videoCamera);
-
-            });
-
-            this.el.btnClosePanelCamera.on('click', e => {
-
-                this.closeAllMainPanel();
-                this.el.panelMessagesContainer.show();// Mostrando  a tela de mensagem e fechando  a tela de foto
-                this._camera.stop();
-
-            });
-
-            this.el.btnTakePicture.on('click', e => {
-
-                let dataURL = this._camera.takePicture();
-
-                this.el.pictureCamera.src = dataURL;
-                this.el.pictureCamera.show();
-                this.el.videoCamera.hide(); // Esconder a camera 
-                this.el.btnReshootPanelCamera.show(); // Tirar novamente
-                this.el.containerTakePicture.hide(); //Esconder o botão da camera.
-                this.el.containerSendPicture.show();
-
-            });
-
-            this.el.btnReshootPanelCamera.on('click', e => {
-
-                this.el.pictureCamera.hide();
-                this.el.videoCamera.show(); // Esconder a camera 
-                this.el.btnReshootPanelCamera.hide(); // Tirar novamente
-                this.el.containerTakePicture.show(); //Esconder o botão da camera.
-                this.el.containerSendPicture.hide();
-
-
-
-            })
-
-            this.el.btnSendPicture.on('click', e => {
-
-                console.log(this.el.pictureCamera.src);
-
-
-
-            });
-
-
-            this.el.btnAttachDocument.on('click', e => {
-
-                this.closeAllMainPanel();
-                this.el.panelDocumentPreview.addClass('open');
-                this.el.panelDocumentPreview.css({
-                    'height': 'calc(100% - 120px)'
-
-                });
-
-                this.el.inputDocument.click();
-
-            });
-
-            this.el.inputDocument.on('change', e => {
-
-                if (this.el.inputDocument.files.length) {
-
-                    this.el.panelDocumentPreview.css({
-                        'height': '1%'
-
-                    });
-
-
-                    let file = this.el.inputDocument.files[0];
-
-                    this._documentPreviewController = new DocumentPreviewController(file);
-
-                    this._documentPreviewController.getPreviewData().then(result => {
-
-                        this.el.imgPanelDocumentPreview.src = result.src;
-                        this.el.infoPanelDocumentPreview.innerHTML = result.info;
-                        this.el.imagePanelDocumentPreview.show();
-                        this.el.filePanelDocumentPreview.hide();
-
-                        this.el.panelDocumentPreview.css({
-                            'height': 'calc(100% - 120px)'
-
-                        });
-
-
-
-
-                    }).catch(err => {
-
-                        //   console.log('err', err);
-
-                        this.el.panelDocumentPreview.css({
-                            'height': 'calc(100% - 120px)'
-
-                        });
-
-
-                        console.log(file.type)
-
-                        switch (file.type) {
-
-                            case 'application/vnd.ms-excel':
-                            case 'application/vnd.openxmlformatts-officedocument.spreadsheetml.sheet':
-                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-xls';
-
-                                break;
-
-                            case 'application/vnd.ms-powerpoint':
-                            case 'application/vnd.openxmlformatts-officedocument.presemtationml.presentation':
-                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-ppt';
-
-                                break;
-
-                            case 'application/msword':
-                            case 'application/vnd.openxmlformatts-officedocument.wordprocessingml.document':
-                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-doc';
-
-                                break;
-
-                            default:
-                                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-generic';
-
-                                break;
-
-
-                        }
-
-                        this.el.filenamePanelDocumentPreview.innerHTML = file.name;
-                        this.el.imagePanelDocumentPreview.hide();
-                        this.el.filePanelDocumentPreview.show();
-
-                    });
-                }
-            })
-
-
-            this.el.btnClosePanelDocumentPreview.on('click', e => {
-                this.closeAllMainPanel();
-                this.el.panelMessagesContainer.show();
-
-            });
-
-            this.el.btnSendDocument.on('click', e => {
-
-                console.log('Enviando o Documento');
-
-            })
-
-            this.el.btnAttachContact.on('click', e => {
-                this.el.modalContacts.show();
-
-            });
-
-            this.el.btnCloseModalContacts.on('click', e => {
-
-                this.el.modalContacts.hide();
-
-            })
-
-        });
-
-        this.el.btnSendMicrophone.on('click', e => {
-
-            this.el.recordMicrophone.show();
-            this.el.btnSendMicrophone.hide();
-
-            this._microphoneController = new MicrophoneController();
-
-
-            this._microphoneController.on('ready', audio => {
-
-                console.log('ready event');
-
-                this._microphoneController.startRecorder();
-
-                //   console.log('Recebi o evento play', audio);
-
-            });
-
-            this._microphoneController.on('recordtimer', timer => {
-
-                this.el.recordMicrophoneTimer.innerHTML = Format.toTime(timer); //Usando a classe toTime do Format.js
-
-
-            });
-
-        });
-
-
-        this.el.btnCancelMicrophone.on('click', e => {
-
-            this._microphoneController.stopRecorder();
-            this.closeRecordMicrophone();
-
-        });
-
-        this.el.btnFinishMicrophone.on('click', e => {
-
-            this._microphoneController.stopRecorder();
-            this.closeRecordMicrophone();
-
-        });
-
-
-        this.el.inputText.on('keypress', e => {
-
-            if (e.key === 'Enter' && !e.ctrlKey) {
-
-                e.preventDefault();
-                this.el.btnSend.click()
-            }
-
-        })
-
-        this.el.inputText.on('keyup', e => {
-
-            if (this.el.inputText.innerHTML.length) {
-
-                this.el.inputPlaceholder.hide();
-                this.el.btnSendMicrophone.hide();
-                this.el.btnSend.show();
-
-                // Escondendo: Place holder e Microfone
-                // Mostrando: Botão de enviar.
-
-            } else {
-
-                this.el.inputPlaceholder.show();
-                this.el.btnSendMicrophone.show();
-                this.el.btnSend.hide();
-
-                // Mostrando: Place holder e Microfone
-                // Escondendo: Botão de enviar.
-            }
-
-        });
-
-        this.el.btnSend.on('click', e => { //Botão Enviar (Caixa de mensagem)
-
-            this._contactActive;
-
-            Message.send(
-                this._contactActive.chatId, 
-                this._user.email,
-                'text',
-                this.el.inputText.innerHTML
-                );
-
-            this.el.inputText.innerHTML = '';
-            this.el.panelEmojis.removeClass('open');
-        });
-
-        this.el.btnEmojis.on('click', e => {
-
-            this.el.panelEmojis.toggleClass('open'); // Altena ao clicar no icone do emojis.
-
-        });
-
-        this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji => {
-
-            emoji.on('click', e => {
-
-                //  console.log(emoji.dataset.unicode);
-
-                let img = this.el.imgEmojiDefault.cloneNode();
-
-                img.style.cssText = emoji.style.cssText;
-                img.dataset.unicode = emoji.dataset.unicode;
-                img.alt = emoji.dataset.unicode;
-
-                emoji.classList.forEach(name => {
-
-                    img.classList.add(name);
-
-                });
-
-                //  this.el.inputText.appendChild(img);
-
-                let cursor = window.getSelection();
-
-                if (!cursor.focusNode || !cursor.focusNode.id == 'input-text') { // Vai verificar se o curso está no input da caixa de mensagem.
-
-                    this.el.inputText.focus();
-                    cursor = window.getSelection();
-
-                }
-
-
-                let range = document.createRange();
-
-                range = cursor.getRangeAt(0);
-                range.deleteContents(); // Vai apagar o range de caracteres
-
-
-                let frag = document.createDocumentFragment();
-
-                frag.appendChild(img);
-
-                range.insertNode(frag); // Inserindo o emoji na posição escolhida na caixa de mensagem.
-
-                range.setStartAfter(img); //
-
-
-
-
-                this.el.inputText.dispatchEvent(new Event('keyup'));
-            });
-
-        });
+      this.classList.toggle(name);
+      return this;
 
 
     }
 
-    closeRecordMicrophone() {
+    Element.prototype.hasClass = function (name) {
 
-        this.el.recordMicrophone.hide();
+      return this.classList.contains(name); // Contains "Se tem ou não"
+
+    }
+
+    HTMLFormElement.prototype.getForm = function () { //Aula 116
+
+      return new FormData(this);
+
+    }
+
+    HTMLFormElement.prototype.toJSON = function () { //Aula 116 
+
+      let json = {};
+
+      this.getForm().forEach((value, key) => {
+
+        json[key] = value
+
+      });
+
+
+      return json; // Gerar o formulario preenchido no formato JSON
+
+    }
+
+
+  }
+
+  initEvents() {
+
+    this.el.inputSearchContacts.on('keyup', e => {
+
+      if (this.el.inputSearchContacts.value.length > 0) {
+        this.el.inputSearchContactsPlaceholder.hide();
+
+      } else {
+
+        this.el.inputSearchContactsPlaceholder.show();
+
+      }
+
+      this._user.getContacts(this.el.inputSearchContacts.value);
+
+    });
+
+    this.el.myPhoto.on('click', e => {
+
+      this.closeAllLeftPanel(); //Fechando o panel
+      this.el.panelEditProfile.show();
+      setTimeout(() => {
+        this.el.panelEditProfile.addClass('open');
+      }, 300);
+
+    });
+
+    this.el.btnNewContact.on('click', e => {
+
+      this.closeAllLeftPanel();
+      this.el.panelAddContact.show();
+      setTimeout(() => {
+        this.el.panelAddContact.addClass('open');
+      }, 300);
+
+    });
+
+    this.el.btnClosePanelEditProfile.on('click', e => {
+
+      this.el.panelEditProfile.removeClass('open');
+
+    });
+
+    this.el.btnClosePanelAddContact.on('click', e => {
+
+      this.el.panelAddContact.removeClass('open');
+
+
+    });
+
+    this.el.photoContainerEditProfile.on('click', e => {
+
+      this.el.inputProfilePhoto.click();
+
+    });
+
+    this.el.inputNamePanelEditProfile.on('keypress', e => { // keypress 
+
+      if (e.key === 'Enter') {
+
+        e.preventDefault(); //Não atualizar
+        this.el.btnSavePanelEditProfile.click();
+      }
+
+    });
+
+    this.el.btnSavePanelEditProfile.on('click', e => {
+
+      this.el.btnSavePanelEditProfile.disabled = true;
+
+      this._user.name = this.el.inputNamePanelEditProfile.innerHTML;
+
+
+      console.log(this.el.inputNamePanelEditProfile.innerHTML);
+
+      this._user.save().then(() => {
+
+        this.el.btnSavePanelEditProfile.disabled = false;
+
+      });
+
+
+    });
+
+    this.el.formPanelAddContact.on('submit', e => {
+
+      e.preventDefault(); //Não atualizar
+
+      let formData = new FormData(this.el.formPanelAddContact); //Colocando o ID do elmento no construtor do FormData.
+
+
+      let contact = new User(formData.get('email'));
+
+      contact.on('datachange', data => {
+
+        if (data.name) {
+
+          Chat.createIfNotExists(this._user.email, contact.email).then(chat => {
+
+            contact.chatId = chat.id;
+
+            this._user.chatId = chat.id;
+
+            contact.addContact(this._user);
+
+            this._user.addContact(contact).then(() => {
+
+              this.el.btnClosePanelAddContact.click();
+              console.info('Contato foi adicionado');
+
+
+            });
+
+          });
+
+        } else {
+
+          console.error('Usuário não foi encontrado.')
+        }
+
+
+      });
+
+
+    });
+
+    this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item => {   // Classe contact-item
+
+      item.on('click', e => {
+
+
+        this.el.home.hide(); // Ocultando o id home
+        this.el.main.css({
+          display: 'flex'
+
+
+        });
+
+      });
+
+      this.el.btnAttach.on('click', e => {  //Clicando no icone de anexo
+
+        e.stopPropagation(); // Executando um evento  apenas na camada selecionado , evitando que execute nas os elementos ancestrais.
+        this.el.menuAttach.addClass('open'); //Mostra o menu do anexo
+        document.addEventListener('click', this.closeMenuAttach.bind(this));
+        // .bind(this) é usado para vincular o escopo do this com outro escopo
+      });
+
+      this.el.btnAttachPhoto.on('click', e => {
+        this.el.inputPhoto.click();
+      });
+
+      this.el.inputPhoto.on('change', e => {
+        //    console.log(this.el.inputPhoto.files); // files é um coleção
+        [...this.el.inputPhoto.files].forEach(file => {  
+          // transformando a coleção em Array para usar o forEach
+          //        console.log(file);
+          Message.sendImage(this._contactActive.chatId, this._user.email, file);
+        });
+
+      });
+
+      this.el.btnAttachCamera.on('click', e => {
+
+        this.closeAllMainPanel();                 // Escondendo a tela de mensagem para mostrar a tela de foto
+        this.el.panelCamera.addClass('open');
+        this.el.panelCamera.css({
+          'height': 'calc(100% - 120px)'
+
+        });
+
+        this._camera = new CameraController(this.el.videoCamera);
+
+      });
+
+      this.el.btnClosePanelCamera.on('click', e => {
+
+        this.closeAllMainPanel();
+        this.el.panelMessagesContainer.show();// Mostrando  a tela de mensagem e fechando  a tela de foto
+        this._camera.stop();
+
+      });
+
+      this.el.btnTakePicture.on('click', e => {
+
+        let dataURL = this._camera.takePicture();
+
+        this.el.pictureCamera.src = dataURL;
+        this.el.pictureCamera.show();
+        this.el.videoCamera.hide(); // Esconder a camera 
+        this.el.btnReshootPanelCamera.show(); // Tirar novamente
+        this.el.containerTakePicture.hide(); //Esconder o botão da camera.
+        this.el.containerSendPicture.show();
+
+      });
+
+      this.el.btnReshootPanelCamera.on('click', e => {
+
+        this.el.pictureCamera.hide();
+        this.el.videoCamera.show(); // Esconder a camera 
+        this.el.btnReshootPanelCamera.hide(); // Tirar novamente
+        this.el.containerTakePicture.show(); //Esconder o botão da camera.
+        this.el.containerSendPicture.hide();
+
+
+
+      })
+
+      this.el.btnSendPicture.on('click', e => {
+
+        console.log(this.el.pictureCamera.src);
+
+
+
+      });
+
+
+      this.el.btnAttachDocument.on('click', e => {
+
+        this.closeAllMainPanel();
+        this.el.panelDocumentPreview.addClass('open');
+        this.el.panelDocumentPreview.css({
+          'height': 'calc(100% - 120px)'
+
+        });
+
+        this.el.inputDocument.click();
+
+      });
+
+      this.el.inputDocument.on('change', e => {
+
+        if (this.el.inputDocument.files.length) {
+
+          this.el.panelDocumentPreview.css({
+            'height': '1%'
+
+          });
+
+
+          let file = this.el.inputDocument.files[0];
+
+          this._documentPreviewController = new DocumentPreviewController(file);
+
+          this._documentPreviewController.getPreviewData().then(result => {
+
+            this.el.imgPanelDocumentPreview.src = result.src;
+            this.el.infoPanelDocumentPreview.innerHTML = result.info;
+            this.el.imagePanelDocumentPreview.show();
+            this.el.filePanelDocumentPreview.hide();
+
+            this.el.panelDocumentPreview.css({
+              'height': 'calc(100% - 120px)'
+
+            });
+
+
+
+
+          }).catch(err => {
+
+            //   console.log('err', err);
+
+            this.el.panelDocumentPreview.css({
+              'height': 'calc(100% - 120px)'
+
+            });
+
+
+            console.log(file.type)
+
+            switch (file.type) {
+
+              case 'application/vnd.ms-excel':
+              case 'application/vnd.openxmlformatts-officedocument.spreadsheetml.sheet':
+                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-xls';
+
+                break;
+
+              case 'application/vnd.ms-powerpoint':
+              case 'application/vnd.openxmlformatts-officedocument.presemtationml.presentation':
+                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-ppt';
+
+                break;
+
+              case 'application/msword':
+              case 'application/vnd.openxmlformatts-officedocument.wordprocessingml.document':
+                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-doc';
+
+                break;
+
+              default:
+                this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-generic';
+
+                break;
+
+
+            }
+
+            this.el.filenamePanelDocumentPreview.innerHTML = file.name;
+            this.el.imagePanelDocumentPreview.hide();
+            this.el.filePanelDocumentPreview.show();
+
+          });
+        }
+      })
+
+
+      this.el.btnClosePanelDocumentPreview.on('click', e => {
+        this.closeAllMainPanel();
+        this.el.panelMessagesContainer.show();
+
+      });
+
+      this.el.btnSendDocument.on('click', e => {
+
+        console.log('Enviando o Documento');
+
+      })
+
+      this.el.btnAttachContact.on('click', e => {
+        this.el.modalContacts.show();
+
+      });
+
+      this.el.btnCloseModalContacts.on('click', e => {
+
+        this.el.modalContacts.hide();
+
+      })
+
+    });
+
+    this.el.btnSendMicrophone.on('click', e => {
+
+      this.el.recordMicrophone.show();
+      this.el.btnSendMicrophone.hide();
+
+      this._microphoneController = new MicrophoneController();
+
+
+      this._microphoneController.on('ready', audio => {
+
+        console.log('ready event');
+
+        this._microphoneController.startRecorder();
+
+        //   console.log('Recebi o evento play', audio);
+
+      });
+
+      this._microphoneController.on('recordtimer', timer => {
+
+        this.el.recordMicrophoneTimer.innerHTML = Format.toTime(timer); //Usando a classe toTime do Format.js
+
+
+      });
+
+    });
+
+
+    this.el.btnCancelMicrophone.on('click', e => {
+
+      this._microphoneController.stopRecorder();
+      this.closeRecordMicrophone();
+
+    });
+
+    this.el.btnFinishMicrophone.on('click', e => {
+
+      this._microphoneController.stopRecorder();
+      this.closeRecordMicrophone();
+
+    });
+
+
+    this.el.inputText.on('keypress', e => {
+
+      if (e.key === 'Enter' && !e.ctrlKey) {
+
+        e.preventDefault();
+        this.el.btnSend.click()
+      }
+
+    })
+
+    this.el.inputText.on('keyup', e => {
+
+      if (this.el.inputText.innerHTML.length) {
+
+        this.el.inputPlaceholder.hide();
+        this.el.btnSendMicrophone.hide();
+        this.el.btnSend.show();
+
+        // Escondendo: Place holder e Microfone
+        // Mostrando: Botão de enviar.
+
+      } else {
+
+        this.el.inputPlaceholder.show();
         this.el.btnSendMicrophone.show();
+        this.el.btnSend.hide();
+
+        // Mostrando: Place holder e Microfone
+        // Escondendo: Botão de enviar.
+      }
+
+    });
+
+    this.el.btnSend.on('click', e => { //Botão Enviar (Caixa de mensagem)
+
+      this._contactActive;
+
+      Message.send(
+        this._contactActive.chatId,
+        this._user.email,
+        'text',
+        this.el.inputText.innerHTML
+      );
+
+      this.el.inputText.innerHTML = '';
+      this.el.panelEmojis.removeClass('open');
+    });
+
+    this.el.btnEmojis.on('click', e => {
+
+      this.el.panelEmojis.toggleClass('open'); // Altena ao clicar no icone do emojis.
+
+    });
+
+    this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji => {
+
+      emoji.on('click', e => {
+
+        //  console.log(emoji.dataset.unicode);
+
+        let img = this.el.imgEmojiDefault.cloneNode();
+
+        img.style.cssText = emoji.style.cssText;
+        img.dataset.unicode = emoji.dataset.unicode;
+        img.alt = emoji.dataset.unicode;
+
+        emoji.classList.forEach(name => {
+
+          img.classList.add(name);
+
+        });
+
+        //  this.el.inputText.appendChild(img);
+
+        let cursor = window.getSelection();
+
+        if (!cursor.focusNode || !cursor.focusNode.id == 'input-text') { // Vai verificar se o curso está no input da caixa de mensagem.
+
+          this.el.inputText.focus();
+          cursor = window.getSelection();
+
+        }
 
 
-    }
+        let range = document.createRange();
 
-    closeAllMainPanel() {
-
-        this.el.panelMessagesContainer.hide();
-        this.el.panelDocumentPreview.removeClass('open');
-        this.el.panelCamera.removeClass('open');  //Fechando a tela de foto
-    }
-
-    closeMenuAttach(e) {
-
-        document.removeEventListener('click', this.closeMenuAttach);  //removendo o evento 
-        this.el.menuAttach.removeClass('open'); // Esconde o menu anexar quando clicado em qualquer elemento na pagina
-
-    }
+        range = cursor.getRangeAt(0);
+        range.deleteContents(); // Vai apagar o range de caracteres
 
 
-    closeAllLeftPanel() {
+        let frag = document.createDocumentFragment();
 
-        this.el.panelAddContact.hide();
+        frag.appendChild(img);
 
-        this.el.panelEditProfile.hide();
+        range.insertNode(frag); // Inserindo o emoji na posição escolhida na caixa de mensagem.
 
-    }
+        range.setStartAfter(img); //
+
+
+
+
+        this.el.inputText.dispatchEvent(new Event('keyup'));
+      });
+
+    });
+
+
+  }
+
+  closeRecordMicrophone() {
+
+    this.el.recordMicrophone.hide();
+    this.el.btnSendMicrophone.show();
+
+
+  }
+
+  closeAllMainPanel() {
+
+    this.el.panelMessagesContainer.hide();
+    this.el.panelDocumentPreview.removeClass('open');
+    this.el.panelCamera.removeClass('open');  //Fechando a tela de foto
+  }
+
+  closeMenuAttach(e) {
+
+    document.removeEventListener('click', this.closeMenuAttach);  //removendo o evento 
+    this.el.menuAttach.removeClass('open'); // Esconde o menu anexar quando clicado em qualquer elemento na pagina
+
+  }
+
+
+  closeAllLeftPanel() {
+
+    this.el.panelAddContact.hide();
+
+    this.el.panelEditProfile.hide();
+
+  }
 
 }
 
