@@ -48,7 +48,8 @@ export class Message extends Model {
 
         let div = document.createElement('div');
 
-        div.className = 'message'
+        div.id = `_${this.id}`;
+        div.className = 'message';
 
 
 
@@ -97,6 +98,19 @@ export class Message extends Model {
                             </div>
                         </div>
              `;
+
+                if (this.content.photo) {
+
+                    let img = div.querySelector('.photo-contact-sended');
+                    img.src = this.content.photo;
+                    img.show();
+
+                }
+
+                div.querySelector('.btn-message-send').on('click', e => {
+
+                    console.log("Enviar Mensagem")
+                })
 
                 break;
 
@@ -308,7 +322,7 @@ export class Message extends Model {
 
             default:
                 div.innerHTML = `
-                      <div class="font-style _3DFk6 tail" id="_${this.id}">
+                      <div class="font-style _3DFk6 tail" >
                                 <span class="tail-container"></span>
                                 <span class="tail-container highlight"></span>
                                 <div class="Tkt2p">
@@ -371,6 +385,12 @@ export class Message extends Model {
 
     }
 
+    static sendContact(chatId, from, contact) {
+
+        return Message.send(chatId, from, 'contact', contact)
+
+
+    }
     static sendDocument(chatId, from, file, filePreview, info) {
 
 
@@ -413,29 +433,17 @@ export class Message extends Model {
                         size: file.size,
                         fileType: file.type,
                         status: 'sent'
-                        
+
                     }, {
                         merge: true
                     });
 
-                   }
+                }
 
             });
         })
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     static sendImage(chatId, from, file) {
 
@@ -486,8 +494,6 @@ export class Message extends Model {
 
 
     }
-
-
 
     static getRef(chatId) {
 
