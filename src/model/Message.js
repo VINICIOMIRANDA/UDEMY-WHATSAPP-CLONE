@@ -107,10 +107,6 @@ export class Message extends Model {
 
                 }
 
-                div.querySelector('.btn-message-send').on('click', e => {
-
-                    console.log("Enviar Mensagem")
-                })
 
                 break;
 
